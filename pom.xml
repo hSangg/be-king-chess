@@ -14,7 +14,8 @@
     <name>chessBackend</name>
     <description>chessBackend</description>
     <properties>
-        <java.version>22</java.version>
+        <spring-security.version>6.3.0</spring-security.version>
+
     </properties>
     <dependencies>
         <dependency>
@@ -31,6 +32,9 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+
+
     </dependencies>
 
     <build>

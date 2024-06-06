@@ -13,14 +13,26 @@ public class User {
     private String name;
     private String password;
     private Date created_at;
+    private Integer score;
 
-    public User(String _id, String name, String password, Date created_at, String email) {
-        this._id = _id;
+    // Constructor without _id
+    public User(String name, String password, Date created_at, String email) {
         this.name = name;
         this.password = password;
         this.created_at = created_at;
+        this.email = email;
     }
 
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
+    }
+
+
+    // Getters and setters
     public String getName() {
         return name;
     }
@@ -28,21 +40,20 @@ public class User {
     public void setName(String name) {
         this.name = name;
     }
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String get_id() {
         return _id;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
-    }
+    // No setter for _id, MongoDB will handle it
 
     public String getPassword() {
         return password;
@@ -59,6 +70,4 @@ public class User {
     public void setCreated_at(Date created_at) {
         this.created_at = created_at;
     }
-
-
 }
