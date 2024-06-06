@@ -1,9 +1,7 @@
 package com.chess.chessbackend.Controller;
 
-import com.chess.chessbackend.Model.ApiResponse;
-import com.chess.chessbackend.Model.RequestLogin;
-import com.chess.chessbackend.Model.UpdateScoreRequest;
-import com.chess.chessbackend.Model.User;
+import com.chess.chessbackend.Helper.EmailSenderService;
+import com.chess.chessbackend.Model.*;
 import com.chess.chessbackend.Repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -20,6 +19,9 @@ import java.util.stream.Collectors;
 public class UserController {
     @Autowired
     UserRepo userRepo;
+
+    @Autowired
+    EmailSenderService emailSenderService;
 
 
     @PostMapping("/auth/signUp")
@@ -103,5 +105,53 @@ public class UserController {
         return new ApiResponse<>("SUCCESS", "Top 10 users by score", topUsers);
     }
 
+    @PostMapping("/user/resetAccount")
+    public ApiResponse<String> resetAccount(@RequestBody ResetAccountRequest resetAccountRequest) {
+
+        // Check if the email exists in the database
+        Optional<User> optionalUser = Optional.ofNullable(userRepo.findByEmail(resetAccountRequest.getEmail()));
+        if (optionalUser.isEmpty()) {
+            return new ApiResponse<>("FAILURE", "User with provided email not found", null);
+        }
+
+        User user = optionalUser.get();
+
+        // Generate a new random password
+        String newPassword = generateRandomPassword();
+
+        // Update the user's password in the database
+        user.setPassword(newPassword);
+        userRepo.save(user);
+
+        // Send an email containing the new password
+        try {
+            sendPasswordResetEmail(user.getEmail(), newPassword);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ApiResponse<>("FAILURE", "Failed to send password reset email", null);
+        }
+
+        return new ApiResponse<>("SUCCESS", "Password reset successfully. Check your email for the new password.", null);
+    }
+
+    public static String generateRandomPassword() {
+        Random random = new Random();
+        StringBuilder newPassword = new StringBuilder();
+        for (int i = 0; i < 6; i++) {
+            newPassword.append(random.nextInt(10));
+        }
+        return newPassword.toString();
+    }
+
+
+
+    private void sendPasswordResetEmail(String email, String newPassword) {
+        String subject = "Chess Game - Password Reset";
+        String body = "<html><body>" +
+                "<h2>Chess Game Password Reset</h2>" +
+                "<p>Your new password is: <strong>" + newPassword + "</strong></p>" +
+                "</body></html>";
+        emailSenderService.sendEmail(email, subject, body);
+    }
 
 }
