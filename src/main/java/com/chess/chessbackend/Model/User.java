@@ -13,7 +13,7 @@ public class User {
     private String name;
     private String password;
     private Date created_at;
-    private Integer score;
+    private Integer score = 0;
 
     // Constructor without _id
     public User(String name, String password, Date created_at, String email) {
