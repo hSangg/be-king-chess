@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 
 import java.util.Date;
 import java.util.List;
@@ -42,8 +44,15 @@ public class UserController {
         // Additional validation checks
         // For example, password strength check
 
-        // Set created_at and save user
+        // Hash the password
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String hashedPassword = passwordEncoder.encode(user.getPassword());
+
+        // Set hashed password and created_at
+        user.setPassword(hashedPassword);
         user.setCreated_at(new Date());
+
+        // Save user
         User savedUser = userRepo.save(user);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -71,8 +80,9 @@ public class UserController {
                     .body(new ApiResponse<>("FAILURE", "User not found", null));
         }
 
-        // Check if the password matches
-        if (user.getPassword().equals(requestLogin.getPassword())) {
+        // Compare hashed passwords
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        if (passwordEncoder.matches(requestLogin.getPassword(), user.getPassword())) {
             return ResponseEntity.ok()
                     .body(new ApiResponse<>("SUCCESS", "Signed In", user));
         } else {

@@ -31,7 +31,6 @@ public class User {
         this.score = score;
     }
 
-
     // Getters and setters
     public String getName() {
         return name;
